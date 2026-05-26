@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pokédex de Cartas</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <main class="app-shell">
+    <section class="intro">
+      <div class="brand-mark">
+        <div class="pokeball" aria-hidden="true"></div>
+        <span>MyCollection</span>
+      </div>
+      <div class="intro-copy">
+        <p class="eyebrow">Arquivo virtual de treinador</p>
+        <h1>Pokédex de cartas físicas</h1>
+        <p>Escolha um Pokémon pronto, complete os dados da sua carta e salve uma versão digital para não perder sua coleção.</p>
+      </div>
+      <div class="collection-count">
+        <span id="cardCount">0</span>
+        <small>cartas salvas</small>
+      </div>
+    </section>
+
+    <section class="workspace" aria-label="Criador de cartas">
+      <form class="card-form" id="pokemonForm">
+        <h2>Montar carta</h2>
+
+        <label>
+          Pokémon pronto
+          <select id="pokemonPreset"></select>
+        </label>
+
+        <div class="preset-grid" id="presetGrid" aria-label="Escolhas rápidas de Pokémon"></div>
+
+        <label>
+          Nome do Pokémon
+          <input type="text" id="pokemonName" placeholder="Pikachu" required>
+        </label>
+
+        <div class="form-grid">
+          <label>
+            Tipo
+            <select id="pokemonType">
+              <option value="Eletrico">Elétrico</option>
+              <option value="Fogo">Fogo</option>
+              <option value="Agua">Água</option>
+              <option value="Grama">Grama</option>
+              <option value="Psiquico">Psíquico</option>
+              <option value="Lutador">Lutador</option>
+              <option value="Noturno">Noturno</option>
+              <option value="Metalico">Metálico</option>
+              <option value="Fada">Fada</option>
+              <option value="Normal">Normal</option>
+            </select>
+          </label>
+
+          <label>
+            HP
+            <input type="number" id="pokemonHp" min="10" max="999" value="60" required>
+          </label>
+        </div>
+
+        <label>
+          Foto personalizada da sua carta física
+          <input type="file" id="pokemonImage" accept="image/*">
+        </label>
+
+        <div class="form-grid">
+          <label>
+            Ataque principal
+            <input type="text" id="pokemonAttack" placeholder="Choque do trovão" required>
+          </label>
+
+          <label>
+            Dano
+            <input type="number" id="pokemonDamage" min="0" max="999" value="30">
+          </label>
+        </div>
+
+        <label>
+          Descrição do ataque
+          <textarea id="pokemonDescription" rows="3" placeholder="Descreva o efeito, energia necessária ou detalhe especial da carta."></textarea>
+        </label>
+
+        <div class="form-grid">
+          <label>
+            Fraqueza
+            <input type="text" id="pokemonWeakness" placeholder="Terra x2">
+          </label>
+
+          <label>
+            Resistência
+            <input type="text" id="pokemonResistance" placeholder="-30">
+          </label>
+        </div>
+
+        <label>
+          Observações da carta física
+          <input type="text" id="pokemonNotes" placeholder="Edição, raridade, estado de conservação...">
+        </label>
+
+        <div class="actions">
+          <button type="submit">Salvar carta</button>
+          <button type="button" id="downloadCard" class="secondary">Baixar PNG</button>
+        </div>
+      </form>
+
+      <aside class="preview-panel" aria-label="Prévia da carta">
+        <article class="pokemon-card type-eletrico" id="cardPreview">
+          <header class="card-header">
+            <div>
+              <span class="stage">Básico</span>
+              <h2 id="previewName">Pikachu</h2>
+            </div>
+            <strong><span id="previewHp">60</span> HP</strong>
+          </header>
+
+          <div class="image-frame" id="previewImage">
+            <span>Imagem da carta</span>
+          </div>
+
+          <div class="type-row">
+            <span id="previewType">Eletrico</span>
+            <span>Card virtual</span>
+          </div>
+
+          <section class="attack-box">
+            <div>
+              <h3 id="previewAttack">Choque do trovão</h3>
+              <strong id="previewDamage">30</strong>
+            </div>
+            <p id="previewDescription">Preencha o formulário para gerar sua carta digital.</p>
+          </section>
+
+          <footer class="stats-row">
+            <span>Fraqueza <b id="previewWeakness">Terra x2</b></span>
+            <span>Resist. <b id="previewResistance">-30</b></span>
+          </footer>
+          <p class="notes" id="previewNotes">Edição, raridade ou estado de conservação.</p>
+        </article>
+      </aside>
+    </section>
+
+    <section class="collection-section">
+      <div class="section-title">
+        <h2>Minha coleção</h2>
+        <button type="button" class="secondary danger" id="clearCollection">Limpar coleção</button>
+      </div>
+      <div class="collection-grid" id="collectionGrid"></div>
+    </section>
+  </main>
+</body>
+</html>

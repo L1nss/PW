@@ -8,6 +8,29 @@
   <script src="script.js" defer></script>
 </head>
 <body>
+  <section class="login-screen" id="loginScreen" aria-label="Login de treinador">
+    <form class="login-card" id="loginForm">
+      <div class="login-pokeball" aria-hidden="true"></div>
+      <p class="eyebrow">Centro Pokemon</p>
+      <h1>Entrada de treinador</h1>
+      <p class="login-copy">Entre com seu nome e senha para abrir somente a sua colecao de cartas.</p>
+
+      <label>
+        Nome do treinador
+        <input type="text" id="trainerName" autocomplete="username" placeholder="Ash" required>
+      </label>
+
+      <label>
+        Senha
+        <input type="password" id="trainerPassword" autocomplete="current-password" placeholder="Sua senha" required>
+      </label>
+
+      <button type="submit">Entrar ou criar conta</button>
+      <p class="auth-message" id="authMessage"></p>
+      <small>Projeto local: os dados ficam salvos neste navegador.</small>
+    </form>
+  </section>
+
   <main class="app-shell">
     <section class="intro">
       <div class="brand-mark">
@@ -22,6 +45,10 @@
       <div class="collection-count">
         <span id="cardCount">0</span>
         <small>cartas salvas</small>
+      </div>
+      <div class="trainer-badge">
+        <span id="activeTrainer">Treinador</span>
+        <button type="button" class="secondary" id="logoutButton">Sair</button>
       </div>
     </section>
 

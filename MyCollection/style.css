@@ -44,6 +44,72 @@ body::before {
   z-index: -1;
 }
 
+body.is-locked {
+  overflow: hidden;
+}
+
+.login-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at 50% 34%, rgba(255, 203, 5, 0.34), transparent 17rem),
+    linear-gradient(#e71d36 0 48%, #202124 48% 52%, #f7f8fb 52%);
+}
+
+.login-screen.is-hidden {
+  display: none;
+}
+
+.login-card {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 16px;
+  padding: 26px;
+  border: 4px solid #202124;
+  border-radius: 8px;
+  background: linear-gradient(#ffffff, #f4f8ff);
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.28);
+  text-align: left;
+}
+
+.login-pokeball {
+  width: 82px;
+  height: 82px;
+  margin: 0 auto;
+  border: 8px solid #202124;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, #ffffff 0 12px, #202124 13px 19px, transparent 20px),
+    linear-gradient(#e71d36 0 47%, #202124 48% 55%, #ffffff 56%);
+}
+
+.login-card h1 {
+  margin: 0;
+  color: #17335d;
+  font-size: clamp(2rem, 8vw, 3.4rem);
+  line-height: 0.95;
+  text-align: center;
+}
+
+.login-copy,
+.auth-message,
+.login-card small {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+  text-align: center;
+}
+
+.auth-message {
+  min-height: 1.4em;
+  color: #9c1422;
+  font-weight: 800;
+}
+
 button,
 input,
 select,
@@ -89,11 +155,30 @@ button:hover {
 
 .intro {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: stretch;
   gap: 24px;
   margin-bottom: 28px;
   padding-top: 6px;
+}
+
+.trainer-badge {
+  align-self: stretch;
+  display: grid;
+  align-content: center;
+  gap: 10px;
+  min-width: 150px;
+  padding: 18px;
+  border: 4px solid #202124;
+  border-radius: 8px;
+  background: linear-gradient(#ffffff 0 50%, #f5f7fb 51%);
+  box-shadow: var(--shadow);
+}
+
+.trainer-badge span {
+  color: #17335d;
+  font-weight: 900;
+  overflow-wrap: anywhere;
 }
 
 .brand-mark {
@@ -504,6 +589,10 @@ textarea {
   }
 
   .collection-count {
+    justify-items: start;
+  }
+
+  .trainer-badge {
     justify-items: start;
   }
 

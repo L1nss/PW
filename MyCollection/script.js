@@ -1,4 +1,6 @@
 const STORAGE_KEY = "pokedex-cartas-virtuais";
+const USERS_KEY = "pokedex-treinadores";
+const SESSION_KEY = "pokedex-treinador-ativo";
 const ARTWORK_BASE = "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork";
 
 const pokemonPresets = [
@@ -131,12 +133,15 @@ const typeLabelMap = {
 
 const state = {
   imageData: "",
-  cards: []
+  cards: [],
+  currentUser: null
 };
 
 const fields = {};
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.body.classList.add("is-locked");
+
   [
     "pokemonPreset",
     "pokemonName",
@@ -157,8 +162,15 @@ document.addEventListener("DOMContentLoaded", () => {
   populatePresetOptions();
   populatePresetButtons();
   bindEvents();
+  bindAuthEvents();
   applyPreset(pokemonPresets[0].name);
-  renderCollection();
+
+  const activeTrainer = sessionStorage.getItem(SESSION_KEY);
+  if (activeTrainer && getUsers()[activeTrainer]) {
+    startTrainerSession(activeTrainer);
+  } else {
+    showLogin();
+  }
 });
 
 function bindEvents() {
@@ -175,6 +187,118 @@ function bindEvents() {
   });
 
   fields.pokemonImage.addEventListener("change", handleImageUpload);
+}
+
+function bindAuthEvents() {
+  document.getElementById("loginForm").addEventListener("submit", handleLogin);
+  document.getElementById("logoutButton").addEventListener("click", logoutTrainer);
+}
+
+async function handleLogin(event) {
+  event.preventDefault();
+
+  const trainerInput = document.getElementById("trainerName");
+  const passwordInput = document.getElementById("trainerPassword");
+  const authMessage = document.getElementById("authMessage");
+  const trainerName = trainerInput.value.trim();
+  const password = passwordInput.value;
+  const trainerId = getTrainerId(trainerName);
+
+  authMessage.textContent = "";
+
+  if (!trainerName || !password) {
+    authMessage.textContent = "Preencha treinador e senha.";
+    return;
+  }
+
+  if (password.length < 4) {
+    authMessage.textContent = "Use uma senha com pelo menos 4 caracteres.";
+    return;
+  }
+
+  const users = getUsers();
+  const passwordHash = await hashPassword(password);
+
+  if (users[trainerId] && users[trainerId].passwordHash !== passwordHash) {
+    authMessage.textContent = "Senha incorreta para este treinador.";
+    return;
+  }
+
+  if (!users[trainerId]) {
+    users[trainerId] = {
+      name: trainerName,
+      passwordHash,
+      createdAt: new Date().toISOString()
+    };
+    saveUsers(users);
+  }
+
+  passwordInput.value = "";
+  startTrainerSession(trainerId);
+}
+
+function startTrainerSession(trainerId) {
+  const users = getUsers();
+  const user = users[trainerId];
+
+  if (!user) {
+    showLogin();
+    return;
+  }
+
+  state.currentUser = {
+    id: trainerId,
+    name: user.name
+  };
+  sessionStorage.setItem(SESSION_KEY, trainerId);
+  state.cards = loadCards();
+  document.getElementById("activeTrainer").textContent = user.name;
+  document.getElementById("loginScreen").classList.add("is-hidden");
+  document.body.classList.remove("is-locked");
+  renderCollection();
+}
+
+function showLogin() {
+  state.currentUser = null;
+  state.cards = [];
+  sessionStorage.removeItem(SESSION_KEY);
+  document.getElementById("loginScreen").classList.remove("is-hidden");
+  document.body.classList.add("is-locked");
+  document.getElementById("trainerName").focus();
+}
+
+function logoutTrainer() {
+  persistCards();
+  showLogin();
+  document.getElementById("authMessage").textContent = "Sessao encerrada. Escolha outro treinador.";
+}
+
+function getUsers() {
+  try {
+    return JSON.parse(localStorage.getItem(USERS_KEY)) || {};
+  } catch {
+    return {};
+  }
+}
+
+function saveUsers(users) {
+  localStorage.setItem(USERS_KEY, JSON.stringify(users));
+}
+
+function getTrainerId(name) {
+  return slugify(name).slice(0, 40);
+}
+
+async function hashPassword(password) {
+  if (window.crypto && window.crypto.subtle) {
+    const bytes = new TextEncoder().encode(password);
+    const digest = await window.crypto.subtle.digest("SHA-256", bytes);
+    return Array.from(new Uint8Array(digest))
+      .map((byte) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  }
+
+  return btoa(unescape(encodeURIComponent(password)));
 }
 
 function populatePresetOptions() {
@@ -313,8 +437,10 @@ function renderPreviewImage(src) {
 
 async function saveCard(event) {
   event.preventDefault();
+  if (!state.currentUser) return;
 
   const card = getFormData();
+  card.ownerId = state.currentUser.id;
   card.cardImage = await createCardImage(card);
   state.cards.unshift(card);
   persistCards();
@@ -324,6 +450,8 @@ async function saveCard(event) {
 }
 
 async function downloadCurrentCard() {
+  if (!state.currentUser) return;
+
   const card = getFormData();
   const image = await createCardImage(card);
   const link = document.createElement("a");
@@ -378,6 +506,7 @@ function downloadSavedCard(card) {
 }
 
 function clearCollection() {
+  if (!state.currentUser) return;
   if (!state.cards.length) return;
 
   const confirmed = confirm("Deseja apagar todas as cartas salvas nesta Pokedex?");
@@ -389,15 +518,22 @@ function clearCollection() {
 }
 
 function loadCards() {
+  if (!state.currentUser) return [];
+
   try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    return JSON.parse(localStorage.getItem(getCardsKey())) || [];
   } catch {
     return [];
   }
 }
 
 function persistCards() {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.cards));
+  if (!state.currentUser) return;
+  localStorage.setItem(getCardsKey(), JSON.stringify(state.cards));
+}
+
+function getCardsKey() {
+  return `${STORAGE_KEY}:${state.currentUser.id}`;
 }
 
 function setText(id, value) {
